@@ -18,6 +18,19 @@ class ServicoSchema(BaseModel):
     horario: str = '12h/20h'
     idPrestadora: int = 1
 
+class ServicoBuscaSchema(BaseModel):
+    """ Define como um serviço será procurado
+    """
+    nome: str = 'Trabalho com encanamento'
+    tipo: str = 'HIDRAULICA'
+    estado: Optional[str] = 'RJ'
+    cidade: Optional[str] = 'RIO DE JANEIRO'
+    bairro: Optional[str] = 'FLAMENGO'
+    descricao: str = 'Serviço de conserto de encanamento'
+    horario: str = '12h/20h'
+    idPrestadora: int = 1
+    idServico: int = 1
+
 class ServicoViewSchema(BaseModel):
     """ Define como um serviço será retornado: serviço + prestadora do serviço.
     """

@@ -97,7 +97,7 @@ def get_pessoa(query: PessoaBuscaSchema):
 
 @app.delete('/pessoa', tags=[pessoa_tag],
             responses={"200": PessoaViewSchema, "404": ErrorSchema})
-def del_produto(query: PessoaBuscaDelSchema):
+def del_pessoa(query: PessoaBuscaDelSchema):
     """Deleta uma Pessoa a partir do email de uma pessoa informada
 
     Retorna uma mensagem de confirmação da remoção.
@@ -180,33 +180,34 @@ def get_servicos():
 
         return {'Servicos': result}, 200
     
-@app.put('/servico/<idServico>', tags=[servico_tag],
+@app.put('/servico', tags=[servico_tag],
           responses={"200": ServicoViewSchema, "404": ErrorSchema})
-def update_servico(idServico, form: ServicoSchema):
-    """Edita um  serviçona base identificado pelo id
+def update_servico(form: ServicoBuscaSchema):
+    """Edita um  serviço na base identificado pelo id
 
     Retorna uma representação do serviço
     """
 
-    logger.debug(f"Editando o serviço de id #{idServico}")
+    logger.debug(f"Editando o serviço de id #{form.idServico}")
     # criando conexão com a base
     session = Session()
-    # fazendo a busca pelo produto
-    servico = session.query(Servico).filter(Servico.idServico == idServico).first()
+    # fazendo a busca pelo serviço e pessoa
+    servico = session.query(Servico).filter(Servico.idServico == form.idServico).first()
+    pessoa = session.query(Pessoa).filter(Pessoa.idPessoa == form.idPrestadora).first()
     
     if not servico:
         #Serviço não encontrada
         error_msg = "Serviço não encontrado na base"
-        logger.warning(f"Erro ao editar serviço de id'{idServico}', {error_msg}")
+        logger.warning(f"Erro ao editar serviço de id'{form.idServico}', {error_msg}")
         return {"mesage": error_msg}, 404
 
     # Atualizando o serviço
 
-    servico.atualiza_servico(nome=form.nome | None ,tipo=form.tipo | None, estado=form.estado  | None, cidade=form.cidade | None, bairro=form.bairro | None, descricao=form.descricao | None, horario=form.horario | None)
+    servico.atualiza_servico(nome=form.nome,tipo=form.tipo, estado=form.estado, cidade=form.cidade, bairro=form.bairro, descricao=form.descricao, horario=form.horario)
     
     session.commit()
 
-    logger.debug(f"Atualizando o serviço de id #{idServico}")
-
+    logger.debug(f"Atualizando o serviço de id #{form.idServico}")
+    
     # retorna a representação de serviço
-    return apresenta_servico(servico), 200
+    return apresenta_servico(servico, pessoa), 200
